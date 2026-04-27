@@ -373,10 +373,6 @@ Retinal fundus images are **unstructured (pixel) data**. Key visual features lea
 | Dataset | Link | Classes Used |
 |---|---|---|
 | **Eye Diseases Classification** (primary) | [🔗 Kaggle](https://www.kaggle.com/datasets/gunavenkatdoddi/eye-diseases-classification) | All 4 |
-| **Retinal Disease Classification** | [🔗 Kaggle](https://www.kaggle.com/datasets/andrewmvd/retinal-disease-classification) | DR, Normal |
-| **Glaucoma Detection** | [🔗 Kaggle](https://www.kaggle.com/datasets/sshikamaru/glaucoma-detection) | Glaucoma, Normal |
-| **Ocular Disease Recognition (ODIR)** | [🔗 Kaggle](https://www.kaggle.com/datasets/andrewmvd/ocular-disease-recognition-odir5k) | All 4 |
-| **Cataract Dataset** | [🔗 Kaggle](https://www.kaggle.com/datasets/nandanp6/cataract-image-dataset) | Cataract, Normal |
 
 ---
 
