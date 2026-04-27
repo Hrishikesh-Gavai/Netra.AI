@@ -4,9 +4,9 @@ Access all project assets below:
 
 | 📁 Resource | 🔗 Link |
 |------------|--------|
-| **Full Project Files** | [Download from Google Drive](https://drive.google.com/drive/folders/1xPvmqGHAqxBFfB4RGc85ww6RnRrGg_qD?usp=drive_link) |
-| **Dataset** | [Download Dataset](https://drive.google.com/drive/folders/1hxv9HE_APzbAe8PqpG6dp3FHGZ452wmB?usp=drive_link) |
-| **Pretrained Model** | [Download Model](https://drive.google.com/drive/folders/1MFHwlf5sJUHIk2qBIZhLIxRmfOq7HBLK?usp=drive_link) |
+| **Full Project Files** | [Download from Google Drive](https://drive.google.com/drive/folders/114aQBVpgpO28DCk9NpD9S04oqb7FNaiZ?usp=drive_link) |
+| **Dataset** | [Download Dataset](https://drive.google.com/drive/folders/1ymXL4kkdRdPp8_jcvEstDd4ShfDOMoI4?usp=drive_link) |
+| **Pretrained Model** | [Download Model](https://drive.google.com/drive/folders/1C8uVeAcoeW60-rZ4D5ergSxjUNqS0QXn?usp=drive_link) |
 
 ---
 
