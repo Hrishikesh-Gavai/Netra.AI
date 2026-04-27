@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netra.AI — AI Eye Disease Detection</title>
+    <meta name="description" content="Netra.AI uses advanced deep learning to detect cataracts, diabetic retinopathy, and glaucoma from retinal images with clinical-grade accuracy.">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='favicon/site.webmanifest') }}">
+    <meta name="theme-color" content="#000000">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+    <!-- ─── Navigation ───────────────────────────────────────────────── -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-eye"></i>
+                <span>Netra.AI</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#how">How It Works</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#team">Team</a></li>
+            </ul>
+            <div class="nav-right">
+                <a href="#uploadSection" class="nav-cta">
+                    <i class="fas fa-microscope"></i>&nbsp; Analyze Now
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ─── Hero ─────────────────────────────────────────────────────── -->
+    <section id="home" class="hero">
+        <!-- Image Carousel Background -->
+        <div class="carousel">
+            <div class="carousel-slide active" style="background-image: url('https://images.unsplash.com/photo-1512521743077-a42eeaaa963c');"></div>
+            <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1646897086006-cf5bdafc50b0');"></div>
+            <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1544656376-ffe19d4b7353');"></div>
+            <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1724782012605-bfad00f948bd');"></div>
+            <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1520475178495-a8d5b36f1782');"></div>
+        </div>
+
+        <!-- Hero Content -->
+        <div class="hero-content">
+            <h1 class="hero-title">
+                Detect Eye Diseases<br>Before It's Too Late.
+            </h1>
+
+            <div class="hero-cta-row">
+                <a href="#uploadSection" class="btn-primary">
+                    <i class="fas fa-upload"></i> Upload &amp; Detect
+                </a>
+                <a href="#about" class="btn-ghost">
+                    Learn More
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── Upload Section ───────────────────────────────────────────── -->
+    <div class="upload-section" id="uploadSection">
+        <div class="container">
+            <div class="upload-section-header">
+                <div class="upload-section-num">01</div>
+                <div class="upload-section-text">
+                    <h2 class="upload-section-title">Upload a Retinal Image</h2>
+                    <p class="upload-section-sub">Accepted formats: JPG, JPEG, PNG — maximum file size 16 MB</p>
+                </div>
+            </div>
+
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-container">
+                    <i class="fas fa-eye upload-icon"></i>
+                    <h3>Drag &amp; drop your retinal image here</h3>
+                    <p class="upload-sub">or click below to browse your files</p>
+
+                    <input type="file" id="imageInput" accept="image/*" style="display:none;">
+                    <button class="upload-btn" id="uploadBtn">
+                        <i class="fas fa-folder-open"></i>&nbsp; Choose Image
+                    </button>
+
+                    <!-- File info row (shown after selection) -->
+                    <div class="file-info" id="fileInfo">
+                        <i class="fas fa-image"></i>
+                        <span id="fileName"></span>
+                        <button class="remove-file" id="removeFile">
+                            <i class="fas fa-times"></i>&nbsp; Remove
+                        </button>
+                    </div>
+
+                    <!-- Image preview (shown after selection) -->
+                    <div class="image-preview-container" id="imagePreviewContainer">
+                        <img id="imagePreviewEl" src="" alt="Preview">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analyze button (shown after file chosen) -->
+            <div class="analyze-btn-wrap" id="analyzeBtnWrap">
+                <button class="analyze-btn" id="analyzeBtn">
+                    <i class="fas fa-microscope"></i>&nbsp; Analyze Image
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── About Section ───────────────────────────────────────────── -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <div class="section-eyebrow">
+                <div class="section-eyebrow-line"></div>
+                <span class="section-eyebrow-text">About Netra.AI</span>
+            </div>
+            <h2 class="section-title">Vision, Precision,<br><em>and Purpose.</em></h2>
+            <p class="section-sub">An open research initiative making clinical-grade eye disease screening accessible worldwide.</p>
+
+            <div class="about-intro">
+                <div class="about-text-col">
+                    <p>Netra.AI is a revolutionary AI-powered screening system engineered to assist clinicians in the early detection of common but vision-threatening eye diseases. Our deep learning pipeline analyses retinal fundus images with remarkable precision — rivalling specialist ophthalmologist performance on key benchmarks.</p>
+                    <p>Our mission: make eye disease screening accessible, affordable, and accurate — stopping preventable blindness through early intervention, everywhere in the world.</p>
+                </div>
+                <div class="about-quote">
+                    "Early detection of eye disease can prevent up to 75% of vision loss cases worldwide."
+                </div>
+            </div>
+
+            <!-- 4 Disease Cards — single row -->
+            <div class="disease-grid">
+                <div class="disease-card reveal">
+                    <span class="disease-card-tag">Condition 01</span>
+                    <i class="fas fa-eye disease-card-icon"></i>
+                    <h3>Cataract</h3>
+                    <p>A clouding of the eye's natural lens, causing blurry vision, faded colours, and glare. The leading cause of vision loss globally — yet highly treatable with surgery when caught early.</p>
+                </div>
+                <div class="disease-card reveal">
+                    <span class="disease-card-tag">Condition 02</span>
+                    <i class="fas fa-tint disease-card-icon"></i>
+                    <h3>Diabetic Retinopathy</h3>
+                    <p>A diabetes complication that damages retinal blood vessels. Without early detection it progresses to severe vision impairment. Routine screening is critical for all diabetic patients.</p>
+                </div>
+                <div class="disease-card reveal">
+                    <span class="disease-card-tag">Condition 03</span>
+                    <i class="fas fa-compress-alt disease-card-icon"></i>
+                    <h3>Glaucoma</h3>
+                    <p>Known as the "silent thief of sight," glaucoma damages the optic nerve with no early symptoms, causing irreversible peripheral vision loss. AI-based screening changes the prognosis.</p>
+                </div>
+                <div class="disease-card reveal">
+                    <span class="disease-card-tag">Condition 04</span>
+                    <i class="fas fa-check-circle disease-card-icon"></i>
+                    <h3>Normal</h3>
+                    <p>A healthy retina with clear blood vessels, an intact optic disc, and an undamaged macula — the gold-standard baseline against which all conditions are assessed.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── How It Works ────────────────────────────────────────────── -->
+    <section id="how" class="how-section">
+        <div class="container">
+            <div class="section-eyebrow">
+                <div class="section-eyebrow-line"></div>
+                <span class="section-eyebrow-text">Process</span>
+            </div>
+            <h2 class="section-title">Four Steps to<br><em>Clinical Insight.</em></h2>
+            <p class="section-sub">From upload to result in under five seconds — fully automated, completely transparent.</p>
+
+            <div class="steps-row">
+                <div class="step-item reveal">
+                    <div class="step-num">01</div>
+                    <i class="fas fa-upload step-icon"></i>
+                    <h3>Upload</h3>
+                    <p>Drag and drop or browse for your retinal fundus photograph in JPG or PNG format.</p>
+                </div>
+                <div class="step-item reveal">
+                    <div class="step-num">02</div>
+                    <i class="fas fa-sliders-h step-icon"></i>
+                    <h3>Pre-process</h3>
+                    <p>The image is normalised, resized, and enhanced to match the model's training distribution.</p>
+                </div>
+                <div class="step-item reveal">
+                    <div class="step-num">03</div>
+                    <i class="fas fa-brain step-icon"></i>
+                    <h3>Inference</h3>
+                    <p>Our convolutional neural network classifies the image across four disease categories with confidence scores.</p>
+                </div>
+                <div class="step-item reveal">
+                    <div class="step-num">04</div>
+                    <i class="fas fa-chart-bar step-icon"></i>
+                    <h3>Report</h3>
+                    <p>A detailed analysis report — with probability bars, charts, and per-class metrics — is generated instantly.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── Features Section ────────────────────────────────────────── -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <div class="section-eyebrow">
+                <div class="section-eyebrow-line"></div>
+                <span class="section-eyebrow-text">Key Features</span>
+            </div>
+            <h2 class="section-title">Built for<br><em>Accuracy &amp; Trust.</em></h2>
+            <p class="section-sub">Everything a clinician or researcher needs for reliable, rapid retinal image analysis.</p>
+
+            <div class="features-grid">
+                <div class="feature-card reveal">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>Deep Learning Engine</h3>
+                    <p>State-of-the-art CNN trained on thousands of labelled retinal images. Achieves 96.4% accuracy across four disease classes.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Real-Time Results</h3>
+                    <p>Full analysis completes in under five seconds. Interactive confidence charts and probability bars update live.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3>Full Transparency</h3>
+                    <p>Per-class precision, recall, and F1-scores are surfaced alongside every result. No black-box outputs.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Privacy by Design</h3>
+                    <p>Images are processed in-session only and never stored permanently. Your patient data stays yours.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── Team Section ────────────────────────────────────────────── -->
+    <section id="team" class="team-section">
+        <div class="container">
+            <div class="section-eyebrow">
+                <div class="section-eyebrow-line"></div>
+                <span class="section-eyebrow-text">Development Team</span>
+            </div>
+            <h2 class="section-title">The Minds<br><em>Behind Netra.AI.</em></h2>
+            <p class="section-sub">The researchers, engineers, and clinicians who built this system.</p>
+
+            <div class="team-grid">
+                {% for member in team_members %}
+                <div class="team-card reveal">
+                    <div class="team-image">
+                        <img src="{{ url_for('static', filename=member.image) }}" alt="{{ member.name }}">
+                    </div>
+                    <h3>{{ member.name }}</h3>
+                    <p class="team-role">{{ member.role }}</p>
+                    <p class="team-bio">{{ member.bio }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── Footer ──────────────────────────────────────────────────── -->
+    <footer class="footer">
+        <div class="footer-main">
+            <div class="footer-col">
+                <div class="footer-logo">
+                    <i class="fas fa-eye"></i> Netra.AI
+                </div>
+                <p class="footer-desc">AI-powered retinal disease screening for early diagnosis and prevention of vision loss — built by researchers, for clinicians.</p>
+                <div class="social-links">
+                    <a href="https://in.linkedin.com/in/hrishikesh-gavai" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="https://github.com/Hrishikesh-Gavai" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Navigation</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#how">How It Works</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#team">Team</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Conditions</h4>
+                <ul>
+                    <li><a href="#about">Cataract</a></li>
+                    <li><a href="#about">Diabetic Retinopathy</a></li>
+                    <li><a href="#about">Glaucoma</a></li>
+                    <li><a href="#about">Normal Retina</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Info</h4>
+                <ul>
+                    <li><a href="#">Data Science &amp; Big Data Mini-Project</a></li>
+                    <li><a href="#">TY-COMP-A</a></li>
+                    <li><a href="#">K.K.W.I.E.E.R</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Netra.AI. All rights reserved. For research use only — not a substitute for clinical diagnosis.</p>
+            <p>Built with <i class="fas fa-heart" style="color:#fff;"></i> for accessible healthcare</p>
+        </div>
+    </footer>
+
+    <script>
+    /* ─────────────────────────────────────────────────────────────────
+       Inline init — runs immediately after parse
+    ───────────────────────────────────────────────────────────────── */
+    document.addEventListener('DOMContentLoaded', function () {
+        initCarousel();
+        initUpload();
+        initReveal();
+        initNavHighlight();
+    });
+
+    /* ─── Carousel ─────────────────────────────────────────────────── */
+    function initCarousel() {
+        const slides = document.querySelectorAll('.carousel-slide');
+        if (!slides.length) return;
+        let current = 0;
+        setInterval(() => {
+            slides[current].classList.remove('active');
+            current = (current + 1) % slides.length;
+            slides[current].classList.add('active');
+        }, 3000);
+    }
+
+    /* ─── Upload Flow ──────────────────────────────────────────────── */
+    let selectedFile = null;
+
+    function initUpload() {
+        const uploadArea     = document.getElementById('uploadArea');
+        const imageInput     = document.getElementById('imageInput');
+        const uploadBtn      = document.getElementById('uploadBtn');
+        const fileInfo       = document.getElementById('fileInfo');
+        const fileName       = document.getElementById('fileName');
+        const removeFileBtn  = document.getElementById('removeFile');
+        const previewContainer = document.getElementById('imagePreviewContainer');
+        const previewEl      = document.getElementById('imagePreviewEl');
+        const analyzeBtnWrap = document.getElementById('analyzeBtnWrap');
+        const analyzeBtn     = document.getElementById('analyzeBtn');
+
+        /* Open file picker */
+        uploadBtn.addEventListener('click', () => imageInput.click());
+
+        /* File chosen via picker */
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files.length) handleFile(e.target.files[0]);
+        });
+
+        /* Drag and drop */
+        ['dragenter','dragover','dragleave','drop'].forEach(ev =>
+            uploadArea.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
+        ['dragenter','dragover'].forEach(ev =>
+            uploadArea.addEventListener(ev, () => uploadArea.classList.add('drag-over')));
+        ['dragleave','drop'].forEach(ev =>
+            uploadArea.addEventListener(ev, () => uploadArea.classList.remove('drag-over')));
+        uploadArea.addEventListener('drop', (e) => {
+            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+        });
+
+        /* Remove file */
+        removeFileBtn.addEventListener('click', resetUpload);
+
+        /* Analyze */
+        analyzeBtn.addEventListener('click', () => {
+            if (!selectedFile) return;
+            submitFile(selectedFile);
+        });
+
+        function handleFile(file) {
+            const allowed = ['image/jpeg','image/jpg','image/png'];
+            if (!allowed.includes(file.type)) {
+                alert('Please upload a JPG or PNG image.');
+                return;
+            }
+            if (file.size > 16 * 1024 * 1024) {
+                alert('File must be under 16 MB.');
+                return;
+            }
+            selectedFile = file;
+            fileName.textContent = file.name;
+            fileInfo.style.display = 'flex';
+            uploadBtn.style.display = 'none';
+
+            /* Preview */
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewEl.src = e.target.result;
+                previewContainer.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+
+            /* Show analyze button */
+            analyzeBtnWrap.style.display = 'block';
+            analyzeBtn.disabled = false;
+            analyzeBtn.innerHTML = '<i class="fas fa-microscope"></i>&nbsp; Analyze Image';
+        }
+
+        function resetUpload() {
+            selectedFile = null;
+            imageInput.value = '';
+            fileInfo.style.display = 'none';
+            previewContainer.style.display = 'none';
+            analyzeBtnWrap.style.display = 'none';
+            uploadBtn.style.display = 'inline-flex';
+            previewEl.src = '';
+            analyzeBtn.disabled = false;
+            analyzeBtn.innerHTML = '<i class="fas fa-microscope"></i>&nbsp; Analyze Image';
+        }
+
+        function submitFile(file) {
+            analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>&nbsp; Analyzing…';
+            analyzeBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/predict', { method: 'POST', body: formData })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = data.redirect;
+                    } else {
+                        alert('Error: ' + (data.error || 'Something went wrong.'));
+                        analyzeBtn.innerHTML = '<i class="fas fa-microscope"></i>&nbsp; Analyze Image';
+                        analyzeBtn.disabled = false;
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Network error. Please try again.');
+                    analyzeBtn.innerHTML = '<i class="fas fa-microscope"></i>&nbsp; Analyze Image';
+                    analyzeBtn.disabled = false;
+                });
+        }
+    }
+
+    /* ─── Scroll Reveal ────────────────────────────────────────────── */
+    function initReveal() {
+        const els = document.querySelectorAll('.reveal');
+        const obs = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    obs.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+        els.forEach(el => obs.observe(el));
+    }
+
+    /* ─── Nav Active Highlight ─────────────────────────────────────── */
+    function initNavHighlight() {
+        const sections = document.querySelectorAll('section[id], div[id]');
+        const links = document.querySelectorAll('.nav-links a');
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(s => {
+                if (scrollY >= s.offsetTop - 120) current = s.id;
+            });
+            links.forEach(a => {
+                a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+            });
+        });
+    }
+
+    /* ─── Spinner style injection ──────────────────────────────────── */
+    const st = document.createElement('style');
+    st.textContent = `@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}.fa-spin{animation:spin 1s linear infinite}`;
+    document.head.appendChild(st);
+    </script>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

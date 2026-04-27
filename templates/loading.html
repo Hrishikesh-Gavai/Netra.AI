@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing — Netra.AI</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='favicon/site.webmanifest') }}">
+    <meta name="theme-color" content="#000000">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ─── Navbar ─── */
+        .navbar {
+            padding: 0 5%;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ─── Main ─── */
+        .loading-main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 5%;
+        }
+
+        .loading-inner {
+            text-align: center;
+            max-width: 560px;
+            width: 100%;
+            animation: fadeUp 0.7s ease;
+        }
+
+        /* ─── Eye spinner ─── */
+        .spinner-wrap {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 48px;
+        }
+
+        .ring {
+            position: absolute;
+            inset: 0;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        .ring-inner {
+            position: absolute;
+            inset: 16px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            border-bottom-color: transparent;
+            animation: spin 0.7s linear infinite reverse;
+        }
+
+        .eye-center {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #fff;
+        }
+
+        /* ─── Text ─── */
+        .loading-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.01em;
+            margin-bottom: 12px;
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+
+        .loading-sub {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            font-weight: 400;
+            font-style: italic;
+            color: #fff;
+            margin-bottom: 48px;
+        }
+
+        /* ─── Steps ─── */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            border: 2px solid #fff;
+        }
+
+        .step {
+            padding: 20px 16px;
+            border-right: 2px solid #fff;
+            text-align: center;
+            transition: background 0.4s;
+        }
+
+        .step:last-child { border-right: none; }
+
+        .step.active { background: #fff; }
+        .step.active .step-icon,
+        .step.active .step-label { color: #000; }
+
+        .step-icon {
+            font-size: 20px;
+            color: #fff;
+            margin-bottom: 10px;
+            display: block;
+            transition: color 0.4s;
+        }
+
+        .step-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #fff;
+            transition: color 0.4s;
+        }
+
+        /* ─── Keyframes ─── */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.5; }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .steps { grid-template-columns: repeat(2, 1fr); }
+            .step:nth-child(2) { border-right: none; }
+            .step:nth-child(3) { border-top: 2px solid #fff; }
+            .step:nth-child(4) { border-top: 2px solid #fff; border-right: none; }
+            .loading-title { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-eye"></i> Netra.AI
+        </div>
+    </nav>
+
+    <!-- Main loading content -->
+    <main class="loading-main">
+        <div class="loading-inner">
+
+            <!-- Dual-ring eye spinner -->
+            <div class="spinner-wrap">
+                <div class="ring"></div>
+                <div class="ring-inner"></div>
+                <div class="eye-center">
+                    <i class="fas fa-eye"></i>
+                </div>
+            </div>
+
+            <h1 class="loading-title">Analysing Your Image</h1>
+            <p class="loading-sub">Our neural network is examining the retinal scan&hellip;</p>
+
+            <!-- Step indicators -->
+            <div class="steps">
+                <div class="step active" id="step1">
+                    <i class="fas fa-upload step-icon"></i>
+                    <div class="step-label">Upload</div>
+                </div>
+                <div class="step" id="step2">
+                    <i class="fas fa-sliders-h step-icon"></i>
+                    <div class="step-label">Pre-process</div>
+                </div>
+                <div class="step" id="step3">
+                    <i class="fas fa-brain step-icon"></i>
+                    <div class="step-label">AI Inference</div>
+                </div>
+                <div class="step" id="step4">
+                    <i class="fas fa-chart-bar step-icon"></i>
+                    <div class="step-label">Generating Report</div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const steps = ['step1','step2','step3','step4'];
+        let currentStep = 0;
+
+        function tick() {
+            if (currentStep < steps.length) {
+                steps.forEach((id, i) => {
+                    document.getElementById(id).classList.toggle('active', i <= currentStep);
+                });
+                currentStep++;
+            }
+        }
+
+        tick(); // step1 active immediately
+        const iv = setInterval(tick, 1250);
+
+        setTimeout(() => {
+            clearInterval(iv);
+            window.location.href = '/results';
+        }, 5000);
+    </script>
+</body>
+</html>
