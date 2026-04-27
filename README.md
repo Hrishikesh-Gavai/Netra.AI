@@ -1,3 +1,10 @@
+# Dataset & Model Download Links:
+
+| Name | Link |
+|---|---|---|
+| **Dataset** | [🔗 Drive](https://drive.google.com/drive/folders/1hxv9HE_APzbAe8PqpG6dp3FHGZ452wmB?usp=drive_link) |
+| **Model** | [🔗 Drive](https://drive.google.com/drive/folders/1MFHwlf5sJUHIk2qBIZhLIxRmfOq7HBLK?usp=drive_link) |
+
 <div align="center">
 
 # 👁️ Netra.AI
