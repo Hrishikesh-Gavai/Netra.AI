@@ -1,10 +1,23 @@
-# Dataset & Model Download Links:
+## 📦 Resources & Downloads
 
-| Name | Link |
-|---|---|
-| **Full-Project** | [🔗 Drive](https://drive.google.com/drive/folders/1xPvmqGHAqxBFfB4RGc85ww6RnRrGg_qD?usp=drive_link) |
-| **Dataset** | [🔗 Drive](https://drive.google.com/drive/folders/1hxv9HE_APzbAe8PqpG6dp3FHGZ452wmB?usp=drive_link) |
-| **Model** | [🔗 Drive](https://drive.google.com/drive/folders/1MFHwlf5sJUHIk2qBIZhLIxRmfOq7HBLK?usp=drive_link) |
+Access all project assets below:
+
+| 📁 Resource | 🔗 Link |
+|------------|--------|
+| **Full Project Files** | [Download from Google Drive](https://drive.google.com/drive/folders/1xPvmqGHAqxBFfB4RGc85ww6RnRrGg_qD?usp=drive_link) |
+| **Dataset** | [Download Dataset](https://drive.google.com/drive/folders/1hxv9HE_APzbAe8PqpG6dp3FHGZ452wmB?usp=drive_link) |
+| **Pretrained Model** | [Download Model](https://drive.google.com/drive/folders/1MFHwlf5sJUHIk2qBIZhLIxRmfOq7HBLK?usp=drive_link) |
+
+---
+
+### 💡 Notes
+- The **Full Project Files** include code, configs, and supporting assets.
+- The **Dataset** is required for training and evaluation.
+- The **Pretrained Model** can be used directly for inference.
+
+## 🎥 Demo Video
+https://github.com/user-attachments/assets/544d33e8-d097-42ba-9c9e-d06e9e7a2c58
+
 
 <div align="center">
 
