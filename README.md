@@ -222,46 +222,8 @@ Netra.AI is designed as a **research and educational prototype**. It is not a ce
 
 ### 5.2 Model Training Pipeline
 
-```
-Raw Dataset (4 Classes)
-        │
-        ▼
-ImageDataGenerator
-  • rescale = 1/255
-  • validation_split = 0.20
-        │
-   ┌────┴────┐
-   ▼         ▼
-Train      Validation
-(80%)      (20%)
-   │
-   ▼
-VGG19 (ImageNet weights, frozen)
-   │
-   ▼
-Flatten Layer
-   │
-   ▼
-Dense(128, activation='relu')
-   │
-   ▼
-Dropout(0.5)
-   │
-   ▼
-Dense(4, activation='softmax')
-   │
-   ▼
-Compile: Adam | Categorical Cross-Entropy
-   │
-   ▼
-model.fit(epochs=6, batch_size=32)
-   │
-   ▼
-Save → models/eye_disease_model.h5
-```
-
----
-
+![Model Training Pipeline](static/assets/Model_Training_Pipeline.png)
+Model_Training_Pipeline.png
 ## 6. Dataset
 
 ### 6.1 Overview
