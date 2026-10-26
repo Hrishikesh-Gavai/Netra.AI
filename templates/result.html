@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Report — Netra.AI</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='favicon/site.webmanifest') }}">
+    <meta name="theme-color" content="#000000">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ─── Reset & refined base ─── */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black: #000000;
+            --white: #ffffff;
+            --font: 'Playfair Display', serif;
+            /* accent-color will be overridden dynamically */
+            --accent-color: #ffe100;
+            /* disease palette (vibrant) */
+            --col-cataract:  #ffe100;
+            --col-diabetic:  #ff0019;
+            --col-glaucoma:  #7b00ff;
+            --col-normal:    #00ff5e;
+            /* chart metrics */
+            --col-precision: #ff0090;
+            --col-recall:    #00d9ff;
+            --col-f1:        #6aff00;
+            /* spacing refinements */
+            --card-radius: 12px;
+            --border-width: 1px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--black);
+            color: var(--white);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fff;
+            border-radius: 2px;
+        }
+
+        /* ─── Navbar (polished) ─── */
+        .navbar {
+            position: sticky;
+            top: 0;
+            background: rgb(0, 0, 0);
+            backdrop-filter: blur(8px);
+            padding: 0 5%;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+            border-bottom: 1px solid rgb(0, 0, 0);
+        }
+
+        .logo {
+            font-family: var(--font);
+            font-size: 23px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            font-size: 1.3em;
+            color: var(--accent-color);
+            transition: color 0.2s;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0;
+        }
+
+        .nav-links a {
+            font-family: var(--font);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #fff;
+            text-decoration: none;
+            padding: 0 28px;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s ease;
+            gap: 8px;
+        }
+
+        .nav-links a:hover {
+            background: var(--accent-color);
+            color: #000;
+        }
+
+        /* ─── Page layout ─── */
+        .page {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 48px 5% 80px;
+        }
+
+        /* Report header refined */
+        .report-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            padding: 36px 48px;
+            margin-bottom: 40px;
+            gap: 32px;
+            background: #000000;
+            border-radius: var(--card-radius);
+        }
+
+        .report-eyebrow {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent-color);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .report-eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 48px;
+            height: 2px;
+            background: var(--accent-color);
+        }
+
+        .report-title {
+            font-size: 56px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .report-title em {
+            font-style: italic;
+            font-weight: 500;
+            color: var(--accent-color);
+        }
+
+        .report-meta {
+            font-size: 16px;
+            font-weight: 400;
+            font-style: italic;
+            color: #bbbbbb;
+            margin-top: 12px;
+        }
+
+        .new-analysis-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 16px 34px;
+            font-family: var(--font);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.2s;
+            white-space: nowrap;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+
+        .new-analysis-btn:hover {
+            background: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.3);
+        }
+
+        /* Summary bar refined */
+        .summary-bar {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 2px;
+            margin-bottom: 48px;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        .summary-stat {
+            padding: 28px 16px;
+            text-align: center;
+            background: #000000;
+            transition: background 0.2s;
+        }
+
+        .summary-stat-num {
+            font-size: 34px;
+            font-weight: 800;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+            letter-spacing: -0.01em;
+        }
+
+        .summary-stat-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #aaa;
+        }
+
+        /* Main grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 36px;
+            margin-bottom: 48px;
+        }
+
+        /* Cards */
+        .result-panel, .probability-section, .chart-card, .metrics-section, .education-panel {
+            background: #0a0a0a;
+            border: 2px solid rgb(255, 255, 255);
+            border-radius: var(--card-radius);
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .panel-header {
+            padding: 20px 28px;
+            font-size: 25px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgb(0, 0, 0);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .panel-body {
+            padding: 32px 28px;
+            flex: 1;
+        }
+
+        /* Diagnosis badge */
+        .diagnosis-wrap {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .disease-badge {
+            display: inline-block;
+            padding: 16px 44px;
+            font-size: 28px;
+            font-weight: 800;
+            font-style: italic;
+            letter-spacing: 0.02em;
+            border-radius: 60px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+        }
+
+        .disease-badge.Cataract             { background: var(--col-cataract); color: #000; }
+        .disease-badge.Diabetic-Retinopathy { background: var(--col-diabetic); color: #fff; }
+        .disease-badge.Glaucoma             { background: var(--col-glaucoma); color: #fff; }
+        .disease-badge.Normal               { background: var(--col-normal); color: #000; }
+
+        .confidence-text {
+            font-size: 18px;
+            font-weight: 400;
+            font-style: italic;
+            color: #ddd;
+        }
+
+        .confidence-text strong {
+            font-weight: 800;
+            font-style: normal;
+            font-size: 26px;
+            color: var(--accent-color);
+        }
+
+        /* Image frame */
+        .image-frame {
+            border-radius: 16px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .image-frame img {
+            width: 100%;
+            max-height: 320px;
+            object-fit: contain;
+            display: block;
+            background: #020202;
+        }
+
+        .image-caption {
+            padding: 14px 16px;
+            font-size: 14px;
+            font-weight: 400;
+            font-style: italic;
+            color: #aaa;
+            text-align: center;
+            background: rgba(0,0,0,0.5);
+        }
+
+        /* Probability bars - refined */
+        .probability-bar {
+            margin-bottom: 28px;
+        }
+
+        .probability-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: -0.2px;
+        }
+
+        .bar-track {
+            height: 46px;
+            background: #1a1a1a;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .bar-fill {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 20px;
+            font-size: 18px;
+            font-weight: 800;
+            transition: width 1s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border-radius: 40px;
+        }
+
+        .bar-fill.Cataract             { background: var(--col-cataract); color: #000; }
+        .bar-fill.Diabetic-Retinopathy { background: var(--col-diabetic); color: #fff; }
+        .bar-fill.Glaucoma             { background: var(--col-glaucoma); color: #fff; }
+        .bar-fill.Normal               { background: var(--col-normal); color: #000; }
+
+        /* Education Panel Styles */
+        .education-panel {
+            margin-bottom: 32px;
+        }
+
+        .education-content {
+            display: grid;
+            gap: 24px;
+        }
+        .edu-section {
+            border-left: 3px solid var(--accent-color);
+            padding-left: 18px;
+            transition: all 0.3s ease;
+        }
+        .edu-section:hover {
+            border-left-width: 4px;
+            padding-left: 20px;
+        }
+        .edu-section h4 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            margin-bottom: 10px;
+            color: var(--accent-color);
+            text-transform: uppercase;
+        }
+        .edu-section p {
+            font-size: 20px;
+            line-height: 1.7;
+            color: #ddd;
+        }
+        .lifestyle-tips {
+            background: rgb(0, 0, 0);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 8px;
+        }
+        .lifestyle-tips h4 {
+            margin-bottom: 20px;
+        }
+        .lifestyle-tips div {
+            font-size: 20px;
+            line-height: 1.8;
+            color: #ddd;
+            white-space: pre-line;
+        }
+
+        /* Doctor Button Styles */
+        .doctor-button-container {
+            display: flex;
+            justify-content: center;
+            margin: 32px 0 48px 0;
+        }
+        
+        .doctor-consult-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            background: var(--accent-color);
+            color: #000;
+            border: none;
+            padding: 18px 48px;
+            font-family: var(--font);
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 60px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .doctor-consult-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .doctor-consult-btn:hover::before {
+            left: 100%;
+        }
+        
+        .doctor-consult-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+            filter: brightness(1.05);
+        }
+        
+        .doctor-consult-btn i {
+            font-size: 24px;
+        }
+        
+        .doctor-consult-btn span {
+            font-size: 18px;
+        }
+
+        /* Charts grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 36px;
+            margin-bottom: 48px;
+        }
+
+        .chart-body {
+            padding: 28px;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Metrics section layout */
+        .metrics-grid {
+            display: grid;
+            border: 1px solid rgb(255, 255, 255);
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+
+        .metrics-col:first-child {
+            border-right: 1px solid rgb(255, 255, 255);
+        }
+
+        .metrics-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 18px;
+        }
+
+        .metrics-table th {
+            padding: 18px 24px;
+            text-align: left;
+            background: #000;
+            color: var(--accent-color);
+            font-family: var(--font);
+            font-weight: 700;
+            font-size: 18px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgb(255, 255, 255);
+        }
+
+        .metrics-table td {
+            padding: 16px 24px;
+            border-bottom: 1px solid rgb(255, 255, 255);
+            font-size: 18px;
+            color: #f0f0f0;
+        }
+
+        .metrics-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .good   { color: var(--col-normal); font-weight: 800; }
+        .medium { color: var(--accent-color); font-weight: 800; }
+        .poor   { color: var(--col-diabetic); font-weight: 800; }
+
+        /* Footer */
+        .result-footer {
+            background: #000000;
+            border-radius: var(--card-radius);
+            padding: 32px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin-top: 16px;
+        }
+
+        .disclaimer {
+            font-size: 14px;
+            font-weight: 400;
+            font-style: italic;
+            color: #aaa;
+            max-width: 650px;
+            line-height: 1.6;
+        }
+
+        .disclaimer strong {
+            color: var(--accent-color);
+        }
+
+        /* Animations */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .page > * {
+            animation: fadeUp 0.5s ease backwards;
+        }
+        .page > *:nth-child(1) { animation-delay: 0.05s; }
+        .page > *:nth-child(2) { animation-delay: 0.1s; }
+        .page > *:nth-child(3) { animation-delay: 0.15s; }
+        .page > *:nth-child(4) { animation-delay: 0.2s; }
+        .page > *:nth-child(5) { animation-delay: 0.25s; }
+        .page > *:nth-child(6) { animation-delay: 0.3s; }
+        .page > *:nth-child(7) { animation-delay: 0.35s; }
+
+        /* Responsive */
+        @media (max-width: 1000px) {
+            .main-grid { grid-template-columns: 1fr; gap: 28px; }
+            .charts-grid { grid-template-columns: 1fr; gap: 28px; }
+            .summary-bar { grid-template-columns: repeat(2, 1fr); gap: 1px; }
+            .report-header { flex-direction: column; text-align: center; align-items: center; }
+            .report-eyebrow { justify-content: center; }
+            .report-eyebrow::before { display: none; }
+            .report-title { font-size: 44px; text-align: center; }
+            .doctor-consult-btn { padding: 14px 32px; font-size: 16px; }
+            .doctor-consult-btn i { font-size: 20px; }
+        }
+
+        @media (max-width: 768px) {
+            .navbar { padding: 0 4%; height: 64px; }
+            .nav-links a { padding: 0 14px; font-size: 10px; }
+            .metrics-grid { grid-template-columns: 1fr; }
+            .metrics-col:first-child { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.15); }
+            .summary-stat { padding: 20px 12px; }
+            .summary-stat-num { font-size: 28px; }
+            .doctor-consult-btn { padding: 12px 24px; font-size: 14px; }
+            .doctor-consult-btn i { font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hidden data injection -->
+    <script id="prediction-data" type="application/json">
+        {{ prediction_data | tojson }}
+    </script>
+
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-eye"></i> Netra.AI
+        </div>
+        <div class="nav-links">
+            <a href="/"><i class="fas fa-home"></i>Home</a>
+            <a href="/#uploadSection"><i class="fas fa-upload"></i>New Analysis</a>
+        </div>
+    </nav>
+
+    <div class="page">
+
+        <!-- Report Header -->
+        <div class="report-header">
+            <div>
+                <div class="report-eyebrow">Netra.AI Analysis Report</div>
+                <h1 class="report-title">Retinal Scan<br><em>Diagnostic Result</em></h1>
+                <p class="report-meta" id="reportMeta">Generating report &mdash; research use only</p>
+            </div>
+            <a href="/" class="new-analysis-btn">
+                <i class="fas fa-plus"></i> New Analysis
+            </a>
+        </div>
+
+        <!-- Summary stats -->
+        <div class="summary-bar">
+            <div class="summary-stat">
+                <div class="summary-stat-num" id="summaryDiagnosis">—</div>
+                <div class="summary-stat-label">Diagnosis</div>
+            </div>
+            <div class="summary-stat">
+                <div class="summary-stat-num" id="summaryConfidence">—</div>
+                <div class="summary-stat-label">Confidence</div>
+            </div>
+            <div class="summary-stat">
+                <div class="summary-stat-num" id="summaryAccuracy">—</div>
+                <div class="summary-stat-label">Model Accuracy</div>
+            </div>
+            <div class="summary-stat">
+                <div class="summary-stat-num" id="summaryF1">—</div>
+                <div class="summary-stat-label">Weighted F1</div>
+            </div>
+            <div class="summary-stat">
+                <div class="summary-stat-num">4</div>
+                <div class="summary-stat-label">Classes</div>
+            </div>
+        </div>
+
+        <!-- Main: Diagnosis + Probabilities -->
+        <div class="main-grid">
+            <div class="result-panel">
+                <div class="panel-header">
+                    <i class="fas fa-stethoscope"></i> Diagnosis
+                </div>
+                <div class="panel-body">
+                    <div class="diagnosis-wrap">
+                        <div class="disease-badge" id="diseaseBadge">
+                            <span id="diseaseName">—</span>
+                        </div>
+                        <p class="confidence-text">
+                            Confidence: <strong id="confidenceValue">—</strong>
+                        </p>
+                    </div>
+                    <div class="image-frame">
+                        <img id="uploadedImage" src="" alt="Retinal fundus photograph">
+                        <div class="image-caption">Retinal fundus photograph (submitted)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="probability-section">
+                <div class="panel-header">
+                    <i class="fas fa-chart-simple"></i> Class Probabilities
+                </div>
+                <div class="panel-body" id="probabilityBars"></div>
+            </div>
+        </div>
+
+        <!-- AI-Powered Education Panel with Gemini -->
+        <div class="education-panel">
+            <div class="panel-header">
+                <i class="fas fa-graduation-cap"></i> AI-Powered Eye Health Insights
+            </div>
+            <div class="panel-body" id="educationContent">
+                <div style="text-align: center; padding: 40px;">
+                    <i class="fas fa-spinner fa-pulse" style="font-size: 32px; color: var(--accent-color);"></i>
+                    <p style="margin-top: 16px;">Loading personalized health insights...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW: Contact Doctors/Eye Specialists Button -->
+        <div class="doctor-button-container">
+            <a href="/doctors" class="doctor-consult-btn">
+                <i class="fas fa-stethoscope"></i>
+                <span>Consult with Eye Specialists</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="panel-header">
+                    <i class="fas fa-chart-pie"></i> Probability Distribution
+                </div>
+                <div class="chart-body">
+                    <canvas id="probabilityChart" style="width:100%; max-height:340px;"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="panel-header">
+                    <i class="fas fa-chart-bar"></i> Per-Class Performance
+                </div>
+                <div class="chart-body">
+                    <canvas id="metricsChart" style="width:100%; max-height:340px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics Tables Section -->
+        <div class="metrics-section">
+            <div class="panel-header">
+                <i class="fas fa-table-list"></i> Detailed Model Metrics
+            </div>
+            <div class="metrics-grid">
+                <div class="metrics-col">
+                    <table class="metrics-table" id="overallMetricsTable">
+                        <thead>
+                            <tr><th>Metric</th><th>Value</th><th>Grade</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="metrics-col">
+                    <table class="metrics-table" id="perClassMetricsTable">
+                        <thead>
+                            <tr><th>Disease</th><th>Precision</th><th>Recall</th><th>F1</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="result-footer">
+            <p class="disclaimer">
+                <i class="fas fa-exclamation-triangle" style="margin-right:10px; color:var(--accent-color);"></i>
+                <strong>Research Use Only.</strong> Netra.AI is an AI research tool and does not constitute a medical diagnosis. Always consult a qualified ophthalmologist for clinical evaluation.
+            </p>
+            <a href="/" class="new-analysis-btn"><i class="fas fa-redo-alt"></i> Run Another</a>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const appData = JSON.parse(document.getElementById('prediction-data').textContent);
+            const detectedDisease = appData.result;
+            const geminiContent = appData.gemini;
+            
+            const diseaseColor = (() => {
+                if(detectedDisease === 'Cataract') return '#ffe100';
+                if(detectedDisease === 'Diabetic Retinopathy') return '#ff0019';
+                if(detectedDisease === 'Glaucoma') return '#7b00ff';
+                return '#00ff5e';
+            })();
+            document.documentElement.style.setProperty('--accent-color', diseaseColor);
+
+            // update badge and text
+            const diseaseNameSpan = document.getElementById('diseaseName');
+            diseaseNameSpan.innerText = detectedDisease;
+            const badgeDiv = document.getElementById('diseaseBadge');
+            const classMap = {
+                'Cataract': 'Cataract',
+                'Diabetic Retinopathy': 'Diabetic-Retinopathy',
+                'Glaucoma': 'Glaucoma',
+                'Normal': 'Normal'
+            };
+            badgeDiv.classList.add(classMap[detectedDisease] || 'Normal');
+            document.getElementById('confidenceValue').innerText = appData.confidence;
+            document.getElementById('uploadedImage').src = appData.img_path;
+
+            // summary stats
+            document.getElementById('summaryDiagnosis').innerText = detectedDisease.split(' ')[0];
+            document.getElementById('summaryConfidence').innerText = appData.confidence;
+            document.getElementById('summaryAccuracy').innerText = appData.metrics.accuracy + '%';
+            document.getElementById('summaryF1').innerText = appData.metrics.weighted.f1 + '%';
+
+            // timestamp with Gemini mention
+            const now = new Date();
+            document.getElementById('reportMeta').innerHTML = `Generated ${now.toLocaleString()} — powered by <strong style="color:var(--accent-color);">Gemini AI</strong> | research use only`;
+
+            // Render Education Panel with Gemini Content
+            const eduContainer = document.getElementById('educationContent');
+            if (geminiContent) {
+                eduContainer.innerHTML = `
+                    <div class="education-content">
+                        <div class="edu-section">
+                            <h4><i class="fas fa-info-circle"></i> What is this condition?</h4>
+                            <p>${geminiContent.description || 'Information not available.'}</p>
+                        </div>
+                        <div class="edu-section">
+                            <h4><i class="fas fa-thermometer-half"></i> Common Symptoms</h4>
+                            <p>${geminiContent.symptoms || 'Information not available.'}</p>
+                        </div>
+                        <div class="edu-section">
+                            <h4><i class="fas fa-exclamation-triangle"></i> Risk Factors</h4>
+                            <p>${geminiContent.risk_factors || 'Information not available.'}</p>
+                        </div>
+                        <div class="edu-section">
+                            <h4><i class="fas fa-calendar-check"></i> Recommended Next Steps</h4>
+                            <p>${geminiContent.next_steps || 'Information not available.'}</p>
+                        </div>
+                        <div class="lifestyle-tips">
+                            <h4><i class="fas fa-heartbeat"></i> Lifestyle & Prevention Tips</h4>
+                            <div>${(geminiContent.lifestyle_tips || 'Information not available.').replace(/\n/g, '<br>')}</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                eduContainer.innerHTML = `
+                    <div class="education-content">
+                        <div class="edu-section">
+                            <h4><i class="fas fa-info-circle"></i> Health Insights</h4>
+                            <p>AI-powered health insights are temporarily unavailable. Please consult an eye care professional for personalized advice.</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Probability bars animation
+            const probs = appData.probabilities;
+            const barContainer = document.getElementById('probabilityBars');
+            barContainer.innerHTML = '';
+            for (const [disease, prob] of Object.entries(probs)) {
+                let cls = '';
+                if (disease === 'Cataract') cls = 'Cataract';
+                else if (disease === 'Diabetic Retinopathy') cls = 'Diabetic-Retinopathy';
+                else if (disease === 'Glaucoma') cls = 'Glaucoma';
+                else if (disease === 'Normal') cls = 'Normal';
+                const barDiv = document.createElement('div');
+                barDiv.className = 'probability-bar';
+                barDiv.innerHTML = `
+                    <div class="probability-label">
+                        <span>${disease}</span>
+                        <span>${prob.toFixed(1)}%</span>
+                    </div>
+                    <div class="bar-track">
+                        <div class="bar-fill ${cls}" style="width:0%" data-width="${prob}">
+                            ${prob > 28 ? prob.toFixed(1) + '%' : ''}
+                        </div>
+                    </div>
+                `;
+                barContainer.appendChild(barDiv);
+            }
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    document.querySelectorAll('.bar-fill').forEach(b => {
+                        const w = parseFloat(b.dataset.width);
+                        b.style.width = w + '%';
+                        if (w <= 28) b.innerHTML = '';
+                        else b.innerHTML = w.toFixed(1) + '%';
+                    });
+                }, 150);
+            });
+
+            // overall metrics table
+            const m = appData.metrics;
+            const overallRows = [
+                ['Accuracy', m.accuracy + '%', 'medium', 'C+'],
+                ['Error Rate', m.error_rate + '%', 'medium', '—'],
+                ['Weighted Precision', m.weighted.precision + '%', (m.weighted.precision > 80 ? 'good' : (m.weighted.precision > 60 ? 'medium' : 'poor')), m.weighted.precision > 80 ? 'Good' : (m.weighted.precision > 60 ? 'Medium' : 'Poor')],
+                ['Weighted Recall', m.weighted.recall + '%', (m.weighted.recall > 80 ? 'good' : (m.weighted.recall > 60 ? 'medium' : 'poor')), m.weighted.recall > 80 ? 'Good' : (m.weighted.recall > 60 ? 'Medium' : 'Poor')],
+                ['Weighted F1-Score', m.weighted.f1 + '%', (m.weighted.f1 > 80 ? 'good' : (m.weighted.f1 > 60 ? 'medium' : 'poor')), m.weighted.f1 > 80 ? 'Good' : (m.weighted.f1 > 60 ? 'Medium' : 'Poor')]
+            ];
+            const overallBody = document.querySelector('#overallMetricsTable tbody');
+            overallRows.forEach(([label, val, cls, grd]) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${label}</td><td style="font-weight:600;">${val}</td><td class="${cls}">${grd}</td>`;
+                overallBody.appendChild(tr);
+            });
+
+            // per-class metrics table
+            const perClassData = m.per_class;
+            const perClassBody = document.querySelector('#perClassMetricsTable tbody');
+            const diseaseColorMap = {
+                'Cataract': '#ffe100', 'Diabetic Retinopathy': '#ff0019', 'Glaucoma': '#7b00ff', 'Normal': '#00ff5e'
+            };
+            for (const [disease, cm] of Object.entries(perClassData)) {
+                const gradeClass = (v) => v > 80 ? 'good' : (v > 60 ? 'medium' : 'poor');
+                const colorSwatch = diseaseColorMap[disease] || '#fff';
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span style="display:inline-block;width:14px;height:14px;background:${colorSwatch};margin-right:12px;border-radius:4px;"></span>${disease}</td>
+                    <td class="${gradeClass(cm.precision)}" style="font-weight:600;">${cm.precision}%</td>
+                    <td class="${gradeClass(cm.recall)}" style="font-weight:600;">${cm.recall}%</td>
+                    <td class="${gradeClass(cm.f1)}" style="font-weight:600;">${cm.f1}%</td>
+                `;
+                perClassBody.appendChild(tr);
+            }
+
+            // Chart.js configuration
+            Chart.defaults.font.family = "'Playfair Display', serif";
+            Chart.defaults.color = '#ffffff';
+            Chart.defaults.borderColor = 'rgba(255,255,255,0.2)';
+
+            const diseaseLabels = Object.keys(perClassData);
+            const probLabels = Object.keys(probs);
+            const probData = probLabels.map(d => probs[d]);
+            const pieColors = probLabels.map(d => diseaseColorMap[d] || '#fff');
+
+            // Doughnut chart
+            new Chart(document.getElementById('probabilityChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: probLabels,
+                    datasets: [{
+                        data: probData,
+                        backgroundColor: pieColors,
+                        borderColor: '#000',
+                        borderWidth: 3,
+                        hoverBorderWidth: 4,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    cutout: '60%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#fff', padding: 18, font: { size: 13, weight: '500' }, usePointStyle: true, pointStyle: 'rect' } },
+                        tooltip: { backgroundColor: '#fff', titleColor: '#000', bodyColor: '#000', borderColor: '#000', borderWidth: 2, callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw.toFixed(1)}%` } }
+                    }
+                }
+            });
+
+            // Grouped bar chart
+            new Chart(document.getElementById('metricsChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: diseaseLabels,
+                    datasets: [
+                        { label: 'Precision (%)', data: diseaseLabels.map(d => perClassData[d].precision), backgroundColor: '#ff0090', borderRadius: 8, barPercentage: 0.7 },
+                        { label: 'Recall (%)', data: diseaseLabels.map(d => perClassData[d].recall), backgroundColor: '#00d9ff', borderRadius: 8, barPercentage: 0.7 },
+                        { label: 'F1-Score (%)', data: diseaseLabels.map(d => perClassData[d].f1), backgroundColor: '#6aff00', borderRadius: 8, barPercentage: 0.7 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { labels: { color: '#fff', font: { size: 12 }, usePointStyle: true, pointStyle: 'rect' } },
+                        tooltip: { backgroundColor: '#fff', titleColor: '#000', bodyColor: '#000', borderColor: '#000', borderWidth: 2 }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, max: 100, ticks: { color: '#fff', callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.1)' }, title: { display: true, text: 'Percentage (%)', color: '#ccc', font: { size: 11 } } },
+                        x: { ticks: { color: '#fff', font: { size: 12, weight: '600' } }, grid: { display: false } }
+                    }
+                }
+            });
+        })();
+    </script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

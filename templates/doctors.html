@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Eye Specialists — Netra.AI</title>
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='favicon/site.webmanifest') }}">
+    <meta name="theme-color" content="#000000">
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Leaflet (map) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        /* ---------- strict palette: #000000, #ffffff, #00ff5e ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: sticky;
+            top: 0;
+            background: #000000;
+            padding: 0 5%;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+            border-bottom: 2px solid #00ff5e;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.5px;
+        }
+        .logo i { color: #00ff5e; }
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            margin-left: 30px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: color 0.25s;
+        }
+        .nav-links a:hover { color: #00ff5e; }
+
+        /* Container */
+        .container { max-width: 1400px; margin: 0 auto; padding: 48px 24px; }
+
+        /* Page header */
+        .page-header { text-align: center; margin-bottom: 44px; }
+        .page-header h1 {
+            font-size: 52px;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 14px;
+            letter-spacing: -1px;
+        }
+        .page-header h1 em { color: #00ff5e; font-style: italic; }
+        .page-header p { font-size: 19px; color: #ffffff; font-weight: 400; }
+
+        /* Search section */
+        .search-section { text-align: center; margin-bottom: 44px; }
+        .search-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: #000000;
+            padding: 8px 8px 8px 24px;
+            border-radius: 60px;
+            border: 2px solid #ffffff;
+            max-width: 540px;
+            width: 100%;
+            transition: border-color 0.25s;
+        }
+        .search-wrapper:focus-within { border-color: #00ff5e; }
+        .city-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-size: 18px;
+            font-family: inherit;
+            padding: 10px 0;
+            outline: none;
+            min-width: 0;
+        }
+        .city-input::placeholder { color: #ffffff; opacity: 0.7; }
+        .search-btn {
+            background: #00ff5e;
+            color: #000000;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-weight: 800;
+            font-size: 15px;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s, transform 0.15s;
+            white-space: nowrap;
+        }
+        .search-btn:hover { background: #ffffff; color: #000000; transform: scale(1.02); }
+        .search-btn:active { transform: scale(0.98); }
+
+        .location-status {
+            margin-top: 14px;
+            font-size: 14px;
+            color: #ffffff;
+            min-height: 20px;
+        }
+        .location-status i.fa-check-circle { color: #00ff5e; }
+        .location-status i.fa-exclamation-triangle { color: #ffffff; }
+        .location-status i.fa-times-circle { color: #ffffff; }
+
+        /* Map container - highly detailed OSM tiles */
+        .map-container {
+            margin-bottom: 44px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid #ffffff;
+        }
+        #map { height: 460px; width: 100%; background: #000000; }
+
+        /* Leaflet popup – strict colors */
+        .leaflet-popup-content-wrapper {
+            background: #000000 !important;
+            color: #ffffff !important;
+            border: 2px solid #00ff5e !important;
+            border-radius: 12px !important;
+            box-shadow: none !important;
+        }
+        .leaflet-popup-tip {
+            background: #000000 !important;
+            border-top: 2px solid #00ff5e !important;
+            border-left: 2px solid #00ff5e !important;
+        }
+        .leaflet-popup-content a { color: #00ff5e !important; text-decoration: none; font-weight: bold; }
+        .leaflet-popup-content a:hover { text-decoration: underline; }
+
+        /* Loading spinner */
+        .loading { display: none; text-align: center; padding: 60px 20px; }
+        .spinner {
+            width: 52px;
+            height: 52px;
+            border: 4px solid #ffffff;
+            border-top-color: #00ff5e;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+            margin: 0 auto 18px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading p { font-size: 17px; color: #ffffff; }
+
+        /* Results header */
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #ffffff;
+        }
+        .results-count {
+            font-size: 20px;
+            color: #00ff5e;
+            font-weight: 700;
+        }
+        .source-legend {
+            display: flex;
+            gap: 14px;
+            font-size: 13px;
+            color: #ffffff;
+            flex-wrap: wrap;
+        }
+        .source-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #000000;
+            border: 1px solid #ffffff;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        /* Doctor cards grid */
+        .doctors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(370px, 1fr));
+            gap: 28px;
+            margin-bottom: 60px;
+        }
+
+        /* Doctor card – pure black/white/green */
+        .doctor-card {
+            background: #000000;
+            border: 2px solid #ffffff;
+            border-radius: 18px;
+            padding: 28px;
+            cursor: pointer;
+            transition: border-color 0.25s, transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+        .doctor-card:hover {
+            transform: translateY(-6px);
+            border-color: #00ff5e;
+        }
+
+        /* Card header */
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+        .card-icon {
+            width: 56px;
+            height: 56px;
+            min-width: 56px;
+            background: #000000;
+            border: 2px solid #00ff5e;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card-icon i {
+            font-size: 24px;
+            color: #00ff5e;
+        }
+        .card-title-block { flex: 1; min-width: 0; }
+        .card-name {
+            font-size: 20px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 6px;
+            word-break: break-word;
+        }
+        .card-type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #000000;
+            background: #00ff5e;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        /* Rating */
+        .card-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+            font-size: 20px;
+        }
+        .stars { color: #00ff5e; letter-spacing: 2px; }
+        .rating-num {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        .rating-na { font-size: 20px; color: #ffffff; }
+
+        /* Description */
+        .card-desc {
+            font-size: 20px;
+            color: #ffffff;
+            line-height: 1.6;
+            margin-bottom: 18px;
+            font-weight: 400;
+        }
+
+        /* Contact info */
+        .card-contacts {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+        .contact-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 20px;
+            color: #ffffff;
+        }
+        .contact-row i {
+            color: #00ff5e;
+            width: 18px;
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+        .contact-row span { line-height: 1.4; }
+
+        /* Distance chip */
+        .distance-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #000000;
+            border: 1px solid #ffffff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+        .distance-chip i { color: #00ff5e; font-size: 12px; }
+
+        /* Source chip */
+        .source-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: #ffffff;
+            margin-bottom: 20px;
+            margin-left: 8px;
+        }
+
+        /* Card actions */
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+        }
+        .btn-website {
+            flex: 1;
+            background: #00ff5e;
+            color: #000000;
+            padding: 13px 20px;
+            border-radius: 40px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 20px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s, transform 0.15s;
+        }
+        .btn-website:hover { background: #ffffff; color: #000000; transform: translateY(-2px); }
+        .btn-map {
+            background: #000000;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            padding: 13px 18px;
+            border-radius: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: inherit;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .btn-map:hover { background: #00ff5e; color: #000000; border-color: #00ff5e; }
+
+        /* Back button */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #000000;
+            border: 2px solid #ffffff;
+            color: #ffffff;
+            padding: 13px 30px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+        .back-btn:hover { background: #00ff5e; color: #000000; border-color: #00ff5e; }
+
+        /* Empty / error state */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 80px 20px;
+            color: #ffffff;
+        }
+        .empty-state i { font-size: 52px; margin-bottom: 20px; display: block; }
+        .empty-state p { font-size: 18px; }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 32px 20px;
+            border-top: 2px solid #00ff5e;
+            color: #ffffff;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-header h1 { font-size: 36px; }
+            .search-wrapper { width: 92%; max-width: 92%; }
+            .doctors-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+        }
+        @media (max-width: 480px) {
+            .page-header h1 { font-size: 28px; }
+            .card-name { font-size: 18px; }
+            .card-desc, .contact-row, .card-rating, .btn-website, .btn-map { font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo"><i class="fas fa-eye"></i> Netra.AI</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/#about">About</a>
+            <a href="/results">My Report</a>
+        </div>
+    </nav>
+
+    <!-- Main -->
+    <div class="container">
+        <div class="page-header">
+            <h1>Eye Specialists <em>Near You</em></h1>
+            <p>Search by city to find top-rated ophthalmologists and eye care centres across India</p>
+        </div>
+
+        <!-- Search -->
+        <div class="search-section">
+            <div class="search-wrapper">
+                <i class="fas fa-search" style="color:#00ff5e; font-size:18px; flex-shrink:0;"></i>
+                <input type="text" id="cityInput" class="city-input" placeholder="Enter city — Mumbai, Nagpur, Delhi…" list="indian-cities" autocomplete="off">
+                <datalist id="indian-cities">
+                    <option>Mumbai</option><option>Delhi</option><option>Bangalore</option>
+                    <option>Chennai</option><option>Kolkata</option><option>Hyderabad</option>
+                    <option>Pune</option><option>Ahmedabad</option><option>Jaipur</option>
+                    <option>Lucknow</option><option>Nagpur</option><option>Indore</option>
+                    <option>Bhopal</option><option>Visakhapatnam</option><option>Patna</option>
+                    <option>Vadodara</option><option>Coimbatore</option><option>Kochi</option>
+                    <option>Chandigarh</option><option>Goa</option><option>Surat</option>
+                    <option>Mysuru</option><option>Madurai</option><option>Varanasi</option>
+                    <option>Amritsar</option><option>Dehradun</option><option>Ranchi</option>
+                </datalist>
+                <button class="search-btn" id="searchBtn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+            <div class="location-status" id="locationStatus"></div>
+        </div>
+
+        <!-- Map -->
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Searching for eye specialists — this may take a moment…</p>
+        </div>
+
+        <!-- Results -->
+        <div id="resultsSection" style="display:none;">
+            <div class="results-header">
+                <div class="results-count" id="resultsCount"></div>
+                <div class="source-legend" id="sourceLegend"></div>
+            </div>
+            <div class="doctors-grid" id="doctorsGrid"></div>
+        </div>
+
+        <!-- Back button -->
+        <div style="text-align:center;">
+            <a href="/results" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Report
+            </a>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2026 Netra.AI — AI-powered eye disease detection &nbsp;|&nbsp; For research use only</p>
+    </div>
+
+    <!-- Script -->
+    <script>
+        let map, markers = [];
+
+        // ---------- highly detailed map: OpenStreetMap standard tiles ----------
+        function initMap(lat = 20.5937, lng = 78.9629) {
+            if (map) { map.remove(); map = null; }
+            map = L.map('map', { zoomControl: true }).setView([lat, lng], 11);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19
+            }).addTo(map);
+        }
+
+        function clearMarkers() {
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+        }
+
+        // Custom marker icon (green cross for hospital, white eye for clinic)
+        function buildIcon(type) {
+            const isHospital = (type === 'Hospital');
+            const color = '#00ff5e';
+            const symbol = isHospital ? '+' : '👁';
+            const svg = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="34" height="44" viewBox="0 0 34 44">
+                  <path d="M17 0C7.6 0 0 7.6 0 17c0 12.6 17 27 17 27S34 29.6 34 17C34 7.6 26.4 0 17 0z"
+                        fill="#000000" stroke="${color}" stroke-width="2"/>
+                  <text x="17" y="22" text-anchor="middle" font-size="15"
+                        font-family="sans-serif" fill="${color}" font-weight="bold">
+                    ${symbol}
+                  </text>
+                </svg>`;
+            return L.divIcon({
+                html: svg,
+                iconSize: [34, 44],
+                iconAnchor: [17, 44],
+                popupAnchor: [0, -44],
+                className: '',
+            });
+        }
+
+        function addMarker(doctor, idx) {
+            const icon = buildIcon(doctor.type);
+            const marker = L.marker([doctor.lat, doctor.lng], { icon }).addTo(map);
+            const ratingHtml = doctor.rating
+                ? `<span style="color:#00ff5e;">★</span> <strong>${doctor.rating}</strong>`
+                : 'Not rated';
+            const websiteHtml = doctor.website
+                ? `<a href="${escapeHtml(doctor.website)}" target="_blank" rel="noopener noreferrer" style="color:#00ff5e;font-weight:bold;">🌐 Visit Website</a>`
+                : '';
+            const popupHtml = `
+                <div style="font-family:'Playfair Display',serif;min-width:220px;line-height:1.5;color:#ffffff;">
+                    <div style="font-size:16px;font-weight:800;margin-bottom:6px;color:#ffffff;">
+                        ${escapeHtml(doctor.name)}
+                    </div>
+                    <div style="font-size:13px;color:#00ff5e;font-weight:700;margin-bottom:6px;">
+                        ${escapeHtml(doctor.type || 'Eye Care')}
+                    </div>
+                    ${doctor.address ? `<div style="font-size:13px;margin-bottom:4px;">📍 ${escapeHtml(doctor.address)}</div>` : ''}
+                    ${doctor.phone ? `<div style="font-size:13px;margin-bottom:4px;">📞 ${escapeHtml(doctor.phone)}</div>` : ''}
+                    <div style="font-size:13px;margin-bottom:8px;">${ratingHtml}</div>
+                    ${doctor.distance != null ? `<div style="font-size:12px;margin-bottom:8px;">${doctor.distance} km from city centre</div>` : ''}
+                    ${websiteHtml}
+                </div>`;
+            marker.bindPopup(popupHtml, { maxWidth: 300 });
+            markers.push(marker);
+            return marker;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function buildStars(rating) {
+            if (!rating) return '';
+            const full = Math.floor(rating);
+            const half = (rating - full) >= 0.5 ? 1 : 0;
+            const empty = 5 - full - half;
+            return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty);
+        }
+
+        function buildCard(doctor, idx) {
+            const card = document.createElement('div');
+            card.className = 'doctor-card';
+            card.dataset.idx = idx;
+
+            const ratingHtml = doctor.rating
+                ? `<div class="card-rating">
+                       <span class="stars">${buildStars(doctor.rating)}</span>
+                       <span class="rating-num">${doctor.rating}/5</span>
+                   </div>`
+                : `<div class="card-rating"><span class="rating-na">Not yet rated</span></div>`;
+
+            const distHtml = doctor.distance != null
+                ? `<span class="distance-chip"><i class="fas fa-location-dot"></i> ${doctor.distance} km from city centre</span>`
+                : '';
+
+            const sourceHtml = doctor.source
+                ? `<span class="source-chip"><i class="fas fa-database"></i> ${escapeHtml(doctor.source)}</span>`
+                : '';
+
+            const websiteLabel = doctor.website && !doctor.website.includes('google.com/maps') ? 'Visit Website' : 'Find on Maps';
+            const websiteIcon = doctor.website && !doctor.website.includes('google.com/maps') ? 'fa-globe' : 'fa-map-location-dot';
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas ${doctor.type === 'Hospital' ? 'fa-hospital' : 'fa-stethoscope'}"></i>
+                    </div>
+                    <div class="card-title-block">
+                        <div class="card-name">${escapeHtml(doctor.name)}</div>
+                        <span class="card-type-badge">
+                            <i class="fas ${doctor.type === 'Hospital' ? 'fa-h' : 'fa-circle-h'}"></i>
+                            ${escapeHtml(doctor.type || 'Eye Care')}
+                        </span>
+                    </div>
+                </div>
+                ${ratingHtml}
+                <p class="card-desc">${escapeHtml(doctor.description || 'Comprehensive eye care services available.')}</p>
+                <div class="card-contacts">
+                    ${doctor.address ? `<div class="contact-row"><i class="fas fa-map-marker-alt"></i><span>${escapeHtml(doctor.address)}</span></div>` : ''}
+                    ${doctor.phone && doctor.phone !== 'Contact hospital directly' ? `<div class="contact-row"><i class="fas fa-phone"></i><span>${escapeHtml(doctor.phone)}</span></div>` : ''}
+                </div>
+                <div style="display:flex;align-items:center;flex-wrap:wrap;">
+                    ${distHtml}
+                    ${sourceHtml}
+                </div>
+                <div class="card-actions">
+                    <a href="${escapeHtml(doctor.website || '#')}" target="_blank" rel="noopener noreferrer" class="btn-website" onclick="event.stopPropagation();">
+                        <i class="fas ${websiteIcon}"></i> ${websiteLabel}
+                    </a>
+                    <button class="btn-map" onclick="event.stopPropagation(); flyToMarker(${idx});">
+                        <i class="fas fa-map-pin"></i> Map
+                    </button>
+                </div>
+            `;
+
+            card.addEventListener('click', () => flyToMarker(idx));
+            return card;
+        }
+
+        function flyToMarker(idx) {
+            const m = markers[idx];
+            if (!m) return;
+            map.flyTo(m.getLatLng(), 16, { animate: true, duration: 0.8 });
+            m.openPopup();
+            document.querySelectorAll('.doctor-card').forEach(c => c.style.borderColor = '');
+            const card = document.querySelector(`.doctor-card[data-idx="${idx}"]`);
+            if (card) {
+                card.style.borderColor = '#00ff5e';
+                card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        // ---------- Search handler ----------
+        document.getElementById('searchBtn').addEventListener('click', doSearch);
+        document.getElementById('cityInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+
+        async function doSearch() {
+            const city = document.getElementById('cityInput').value.trim();
+            if (!city) {
+                setStatus('<i class="fas fa-exclamation-triangle"></i> Please enter a city name.', '#ffffff');
+                return;
+            }
+
+            const loading = document.getElementById('loading');
+            const resultsSection = document.getElementById('resultsSection');
+            const doctorsGrid = document.getElementById('doctorsGrid');
+
+            loading.style.display = 'block';
+            resultsSection.style.display = 'none';
+            clearMarkers();
+            setStatus(`<i class="fas fa-spinner fa-pulse"></i> Searching in ${escapeHtml(city)}…`, '#ffffff');
+
+            try {
+                const resp = await fetch(`/api/search-doctors?city=${encodeURIComponent(city)}`);
+                const data = await resp.json();
+                loading.style.display = 'none';
+
+                if (data.success && data.results && data.results.length > 0) {
+                    const results = data.results;
+                    resultsSection.style.display = 'block';
+                    document.getElementById('resultsCount').innerHTML = `<i class="fas fa-stethoscope"></i> Found ${results.length} eye care facility${results.length > 1 ? 's' : ''} in ${escapeHtml(city)}`;
+
+                    const sources = [...new Set(results.map(r => r.source).filter(Boolean))];
+                    const sourceIcons = { 'OpenStreetMap': '🗺️', 'Curated': '⭐', 'Google Places': '📍', 'Fallback': '🔎' };
+                    document.getElementById('sourceLegend').innerHTML = sources.map(s => `<span class="source-badge">${sourceIcons[s] || '📋'} ${s}</span>`).join('');
+
+                    doctorsGrid.innerHTML = '';
+                    const bounds = [];
+                    results.forEach((doc, idx) => {
+                        const marker = addMarker(doc, idx);
+                        bounds.push([doc.lat, doc.lng]);
+                        doctorsGrid.appendChild(buildCard(doc, idx));
+                    });
+                    if (bounds.length) {
+                        const group = L.featureGroup(markers);
+                        map.fitBounds(group.getBounds().pad(0.25));
+                    }
+                    setStatus(`<i class="fas fa-check-circle"></i> Showing ${results.length} results for ${escapeHtml(city)}`, '#00ff5e');
+                } else {
+                    resultsSection.style.display = 'block';
+                    doctorsGrid.innerHTML = `<div class="empty-state"><i class="fas fa-face-sad-tear"></i><p>No eye specialists found in <strong>${escapeHtml(city)}</strong>.<br>Try a nearby major city or check the spelling.</p></div>`;
+                    setStatus(`<i class="fas fa-exclamation-triangle"></i> No results found for ${escapeHtml(city)}`, '#ffffff');
+                }
+            } catch (err) {
+                console.error(err);
+                loading.style.display = 'none';
+                resultsSection.style.display = 'block';
+                doctorsGrid.innerHTML = `<div class="empty-state"><i class="fas fa-triangle-exclamation"></i><p>Something went wrong. Please try again.</p></div>`;
+                setStatus('<i class="fas fa-times-circle"></i> Search failed — please try again.', '#ffffff');
+            }
+        }
+
+        function setStatus(html, color) {
+            const el = document.getElementById('locationStatus');
+            el.innerHTML = html;
+            el.style.color = color || '#ffffff';
+        }
+
+        initMap();
+    </script>
+</body>
+</html>
