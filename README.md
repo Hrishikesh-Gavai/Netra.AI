@@ -22,48 +22,38 @@ https://github.com/user-attachments/assets/544d33e8-d097-42ba-9c9e-d06e9e7a2c58
 
 <div align="center">
 
-<img src="static/assets/Logo.png" alt="Netra.AI Logo" width="120">
-
-# Netra.AI
+# 👁️ Netra.AI
 
 ### Detection of Retinal Diseases from Fundus Images using VGG19 Transfer Learning
 
-**Deep Learning Mini-Project**
-
-Department of Computer Engineering<br>
-K. K. Wagh Institute of Engineering Education and Research, Nashik<br>
-(An Autonomous Institute affiliated to Savitribai Phule Pune University)<br>
-A.Y. 2026–2027 · Semester VII
-
-**Guide:** Prof. Shweta Jadhav
+🧠 **Deep Learning Mini-Project**
 
 </div>
 
 ---
 
-## Table of Contents
+## 📋 Table of Contents
 
-1. [Abstract](#1-abstract)
-2. [Introduction](#2-introduction)
-3. [Problem Statement](#3-problem-statement)
-4. [Literature Survey](#4-literature-survey)
-5. [Dataset](#5-dataset)
-6. [Data Pre-processing](#6-data-pre-processing)
-7. [Model Architecture](#7-model-architecture)
-8. [Model Training](#8-model-training)
-9. [System Implementation](#9-system-implementation)
-10. [Results](#10-results)
-11. [Observations](#11-observations)
-12. [Conclusion](#12-conclusion)
-13. [Future Scope](#13-future-scope)
-14. [Project Structure](#14-project-structure)
-15. [Installation and Usage](#15-installation-and-usage)
-16. [Team](#16-team)
-17. [References](#17-references)
+1. [📝 Abstract](#1--abstract)
+2. [📖 Introduction](#2--introduction)
+3. [🎯 Problem Statement](#3--problem-statement)
+4. [📚 Literature Survey](#4--literature-survey)
+5. [🗂️ Dataset](#5-️-dataset)
+6. [🔧 Data Pre-processing](#6--data-pre-processing)
+7. [🏗️ Model Architecture](#7-️-model-architecture)
+8. [⚙️ Model Training](#8-️-model-training)
+9. [💻 System Implementation](#9--system-implementation)
+10. [📊 Results](#10--results)
+11. [🔍 Observations](#11--observations)
+12. [✅ Conclusion](#12--conclusion)
+13. [🚀 Future Scope](#13--future-scope)
+14. [📁 Project Structure](#14--project-structure)
+15. [🛠️ Installation and Usage](#15-️-installation-and-usage)
+16. [📑 References](#16--references)
 
 ---
 
-## 1. Abstract
+## 1. 📝 Abstract
 
 Cataract, diabetic retinopathy and glaucoma are some of the most common causes of vision loss, and all three can be seen on a photograph of the back of the eye, called a **fundus image**. Reading these images needs an eye specialist, and there are not enough specialists for the number of patients who need screening.
 
@@ -75,7 +65,7 @@ On the validation set of 841 images, the model achieves an overall accuracy of *
 
 ---
 
-## 2. Introduction
+## 2. 📖 Introduction
 
 ### 2.1 Background
 
@@ -102,7 +92,7 @@ Netra.AI is an **educational prototype** and not a certified medical device. It 
 
 ---
 
-## 3. Problem Statement
+## 3. 🎯 Problem Statement
 
 > *To develop a deep learning based system that takes a colour fundus image as input, classifies it as Cataract, Diabetic Retinopathy, Glaucoma or Normal using a VGG19 transfer learning model, and gives the user an easy explanation of the result along with nearby eye specialist details.*
 
@@ -119,7 +109,7 @@ Netra.AI is an **educational prototype** and not a certified medical device. It 
 
 ---
 
-## 4. Literature Survey
+## 4. 📚 Literature Survey
 
 | Paper | Method | Finding |
 |---|---|---|
@@ -134,11 +124,13 @@ Most of these systems use very large private datasets. This project uses a small
 
 ---
 
-## 5. Dataset
+## 5. 🗂️ Dataset
 
 ### 5.1 Dataset Details
 
-The public **[Eye Diseases Classification](https://www.kaggle.com/datasets/gunavenkatdoddi/eye-diseases-classification)** dataset from Kaggle is used. It contains colour fundus images in four folders, one per class.
+The public **Eye Diseases Classification** dataset from Kaggle is used. It contains colour fundus images in four folders, one per class.
+
+🔗 **Dataset Link:** [https://www.kaggle.com/datasets/gunavenkatdoddi/eye-diseases-classification](https://www.kaggle.com/datasets/gunavenkatdoddi/eye-diseases-classification)
 
 | Class | No. of Images | Image Size |
 |---|:---:|:---:|
@@ -178,7 +170,7 @@ The data is split using `ImageDataGenerator(validation_split=0.2)`, which splits
 
 ---
 
-## 6. Data Pre-processing
+## 6. 🔧 Data Pre-processing
 
 The same steps are applied during training and in the web application, so the model always receives input in the same form.
 
@@ -216,7 +208,7 @@ Pixel values (0–255) are divided by 255 using `rescale=1./255`. Small input va
 
 ---
 
-## 7. Model Architecture
+## 7. 🏗️ Model Architecture
 
 ### 7.1 Convolutional Neural Network (CNN)
 
@@ -305,7 +297,7 @@ model = Model(inputs=base_model.input, outputs=output)
 
 ---
 
-## 8. Model Training
+## 8. ⚙️ Model Training
 
 ### 8.1 Training Pipeline
 
@@ -365,7 +357,7 @@ model.save("models/eye_disease_model.h5")
 
 ---
 
-## 9. System Implementation
+## 9. 💻 System Implementation
 
 ### 9.1 System Architecture
 
@@ -436,7 +428,7 @@ The application, together with the trained model, is packed into a Docker contai
 
 ---
 
-## 10. Results
+## 10. 📊 Results
 
 ### 10.1 Evaluation Metrics
 
@@ -508,7 +500,7 @@ Rows = actual class, columns = predicted class.
 
 ---
 
-## 11. Observations
+## 11. 🔍 Observations
 
 ### 11.1 Classes That Worked Well
 
@@ -545,7 +537,7 @@ The number of images is not the reason, since all four classes have almost the s
 
 ---
 
-## 12. Conclusion
+## 12. ✅ Conclusion
 
 Netra.AI classifies fundus images into Cataract, Diabetic Retinopathy, Glaucoma and Normal using transfer learning with a frozen VGG19 model, training only a small classification head on 3,376 images. The model achieved **73.96% accuracy** on 841 validation images, performing very well on diabetic retinopathy (F1 98.21%) and well on cataract (F1 83.20%), while glaucoma detection needs improvement.
 
@@ -553,7 +545,7 @@ The model is part of a complete web application that explains results using the 
 
 ---
 
-## 13. Future Scope
+## 13. 🚀 Future Scope
 
 | Area | Improvement |
 |---|---|
@@ -570,7 +562,7 @@ The model is part of a complete web application that explains results using the 
 
 ---
 
-## 14. Project Structure
+## 14. 📁 Project Structure
 
 ```
 Mini-Project/
@@ -603,14 +595,14 @@ Mini-Project/
 └── static/
     ├── styles.css
     ├── script.js
-    ├── assets/                     # Diagrams, charts and logo used in this README
+    ├── assets/                     # Diagrams and charts used in this README
     ├── favicon/
     └── uploads/                    # User-uploaded images
 ```
 
 ---
 
-## 15. Installation and Usage
+## 15. 🛠️ Installation and Usage
 
 ### Prerequisites
 
@@ -658,21 +650,7 @@ docker run -p 5000:5000 --env-file .env netra-ai
 
 ---
 
-## 16. Team
-
-| Name | Roll No. | Seat No. |
-|---|:---:|:---:|
-| Hrishikesh Gavai | 17 | B231301040 |
-| Deepak Warude | 18 | B231301148 |
-| Atharva Ghayal | 19 | B231301042 |
-| Tejas Sangle | 20 | B231301122 |
-
-**Guide:** Prof. Shweta Jadhav<br>
-**Class:** BE Computer Engineering, KKWIEER, Nashik
-
----
-
-## 17. References
+## 16. 📑 References
 
 1. World Health Organization, *World Report on Vision*, Geneva, 2019.
 2. Y.-C. Tham et al., "Global prevalence of glaucoma and projections of glaucoma burden through 2040," *Ophthalmology*, vol. 121, no. 11, pp. 2081–2090, 2014.
@@ -691,6 +669,6 @@ docker run -p 5000:5000 --env-file .env netra-ai
 
 ---
 
-## Disclaimer
+## ⚠️ Disclaimer
 
 Netra.AI is a student project made for educational purposes only. It is **not a certified medical device** and its results should not be used in place of a proper diagnosis. Please consult a qualified eye specialist for any eye-related problem.
